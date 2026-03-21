@@ -6,10 +6,28 @@ import 'package:writer/views/writer_screen.dart';
 
 class AppRoutes {
   const AppRoutes._();
-  
+
   static final routes = [
-    GetPage(name: '/', page: () => const HomeScreen(), transition: Transition.leftToRight, curve: Curves.easeIn, transitionDuration: Duration(milliseconds: 500)),
-    GetPage(name: '/writer', page: () => const WriterScreen(), transition: Transition.rightToLeft, curve: Curves.easeIn, transitionDuration: Duration(milliseconds: 500)),
-    GetPage(name: '/code-output', page: () => const CodeOutputView(), transition: Transition.downToUp, curve: Curves.easeIn, transitionDuration: Duration(milliseconds: 500)),
+    GetPage(
+      name: '/',
+      page: () => const HomeScreen(),
+      transition: Transition.leftToRight,
+      curve: Curves.easeIn,
+      transitionDuration: Duration(milliseconds: 500),
+    ),
+    GetPage(
+      name: '/writer',
+      page: () => const WriterScreen(),
+      transition: Transition.rightToLeft,
+      curve: Curves.easeIn,
+      transitionDuration: Duration(milliseconds: 500),
+    ),
+    GetPage(
+      name: '/code-output',
+      page: () => const CodeOutputView(),
+      transition: Transition.downToUp,
+      curve: Curves.easeIn,
+      transitionDuration: Duration(milliseconds: 500),
+    ),
   ];
 }

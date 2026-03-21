@@ -16,7 +16,7 @@ class HomeScreen extends GetView<HomeScreenController> {
     final NoteController noteController = Get.put(NoteController());
     Get.put(HomeScreenController());
     final TextEditingController searchController = TextEditingController();
-    
+
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -27,7 +27,8 @@ class HomeScreen extends GetView<HomeScreenController> {
               key: controller.openFileKey,
               container: ShowcaseContainer(
                 title: "Import Notes",
-                description: "Tap here to open and import notes from existing files.",
+                description:
+                    "Tap here to open and import notes from existing files.",
               ),
               child: IconButton(
                 icon: const Icon(Icons.file_open_outlined),
@@ -38,12 +39,14 @@ class HomeScreen extends GetView<HomeScreenController> {
               key: controller.themeKey,
               container: ShowcaseContainer(
                 title: "Change Theme",
-                description: "Tap to switch themes. Long press for the fall theme!",
+                description:
+                    "Tap to switch themes. Long press for the fall theme!",
               ),
               child: IconButton(
                 icon: const Icon(Icons.brightness_6),
                 onPressed: () => Get.find<ThemeService>().switchTheme(),
-                onLongPress: () => Get.find<ThemeService>().toggleFallTheme(context),
+                onLongPress: () =>
+                    Get.find<ThemeService>().toggleFallTheme(context),
               ),
             ),
           ],
@@ -71,9 +74,9 @@ class HomeScreen extends GetView<HomeScreenController> {
               Showcase.withWidget(
                 key: controller.tagsKey,
                 container: ShowcaseContainer(
-                  title: "Filter by Tags", 
-                  description: "Tap on tag to filter your notes list"
-                ),                  
+                  title: "Filter by Tags",
+                  description: "Tap on tag to filter your notes list",
+                ),
                 child: Obx(
                   () => SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -97,14 +100,15 @@ class HomeScreen extends GetView<HomeScreenController> {
                     onReorder: (oldIndex, newIndex) {
                       noteController.reorderNotes(oldIndex, newIndex);
                     },
-                    proxyDecorator: (Widget child, int index, Animation<double> animation) {
-                      return Material(
-                        color: Theme.of(context).cardColor,
-                        elevation: 6.0,
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: child,
-                      );
-                    },
+                    proxyDecorator:
+                        (Widget child, int index, Animation<double> animation) {
+                          return Material(
+                            color: Theme.of(context).cardColor,
+                            elevation: 6.0,
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: child,
+                          );
+                        },
                     itemCount: noteController.filteredNotes.length,
                     itemBuilder: (context, index) {
                       final note = noteController.filteredNotes[index];
@@ -117,7 +121,9 @@ class HomeScreen extends GetView<HomeScreenController> {
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('The note "${deletedNote.title}" has been deleted.'),
+                              content: Text(
+                                'The note "${deletedNote.title}" has been deleted.',
+                              ),
                               duration: const Duration(seconds: 2),
                               dismissDirection: direction,
                               action: SnackBarAction(
@@ -132,18 +138,25 @@ class HomeScreen extends GetView<HomeScreenController> {
                         background: Container(
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.only(right: 20.0),
-                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.error,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onError),
+                          child: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).colorScheme.onError,
+                          ),
                         ),
                         child: NoteTile(
                           note: note,
                           index: index,
                           onTap: () => Get.toNamed('/writer', arguments: note),
-                          onLongPress: () => AppHelpers.showNoteOptions(context, note),
+                          onLongPress: () =>
+                              AppHelpers.showNoteOptions(context, note),
                         ),
                       );
                     },

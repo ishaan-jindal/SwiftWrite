@@ -30,10 +30,12 @@ android {
 
     signingConfigs {
         create("release") {
+          if (keystorePropertiesFile.exists()) {
             keyAlias = keystoreProperties.getProperty("keyAlias")
             keyPassword = keystoreProperties.getProperty("keyPassword")
             storeFile = file(keystoreProperties.getProperty("storeFile"))
             storePassword = keystoreProperties.getProperty("storePassword")
+          }
         }
     }
 
@@ -50,7 +52,9 @@ android {
 
     buildTypes {
         release {
+          if (keystorePropertiesFile.exists()) {
             signingConfig = signingConfigs.getByName("release")
+          }
         }
     }
 }

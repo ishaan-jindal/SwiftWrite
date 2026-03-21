@@ -14,7 +14,8 @@ class FileTypeAnalyzer {
     if (FileTypes.plainText.contains(ext)) {
       return FileType.plainText;
     }
-    if (FileTypes.programmingLanguage.contains(ext) || languageIdMap.containsKey(ext)) {
+    if (FileTypes.programmingLanguage.contains(ext) ||
+        languageIdMap.containsKey(ext)) {
       return FileType.programmingLanguage;
     }
     if (FileTypes.todo.contains(ext)) {

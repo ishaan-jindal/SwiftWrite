@@ -39,14 +39,16 @@ class TodoController extends GetxController {
   }
 
   String _convertToMarkdown() {
-    return items.map((item) {
-      if (item is ChecklistItem) {
-        return '- [${item.isDone ? 'x' : ' '}] ${item.title}';
-      } else if (item is MarkdownItem) {
-        return item.markdownText;
-      }
-      return '';
-    }).join('\n');
+    return items
+        .map((item) {
+          if (item is ChecklistItem) {
+            return '- [${item.isDone ? 'x' : ' '}] ${item.title}';
+          } else if (item is MarkdownItem) {
+            return item.markdownText;
+          }
+          return '';
+        })
+        .join('\n');
   }
 
   void _updateMarkdown() {

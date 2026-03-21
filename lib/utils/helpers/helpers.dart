@@ -19,7 +19,7 @@ class AppHelpers {
   static double getDeviceHeight(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }
-  
+
   static double getDeviceWidth(BuildContext context) {
     return MediaQuery.of(context).size.width;
   }
@@ -48,9 +48,7 @@ class AppHelpers {
 
   static void openFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-      );
+      final result = await FilePicker.platform.pickFiles(type: FileType.any);
 
       if (result != null) {
         final file = File(result.files.single.path!);
@@ -68,7 +66,7 @@ class AppHelpers {
         Get.toNamed('/writer', arguments: newNote);
       }
     } catch (e) {
-        throw Exception("Error opening file: $e");
+      throw Exception("Error opening file: $e");
     }
   }
 
@@ -104,7 +102,9 @@ class AppHelpers {
                   noteController.deleteNote(note.key);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('The note "${note.title}" has been deleted.'),
+                      content: Text(
+                        'The note "${note.title}" has been deleted.',
+                      ),
                       duration: const Duration(seconds: 2),
                       action: SnackBarAction(
                         label: "Undo",
@@ -129,10 +129,7 @@ class AppHelpers {
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(note.content);
     await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path)],
-        text: 'Sharing: $fileName',
-      ),
+      ShareParams(files: [XFile(file.path)], text: 'Sharing: $fileName'),
     );
   }
 
@@ -145,15 +142,12 @@ class AppHelpers {
         bytes: Uint8List.fromList(note.content.codeUnits),
       );
       if (result != null && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Note saved'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Note saved')));
       }
     } catch (e) {
       throw Exception("Error saving note: $e");
     }
   }
-
 }

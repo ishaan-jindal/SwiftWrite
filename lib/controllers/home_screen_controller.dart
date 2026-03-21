@@ -6,7 +6,6 @@ import 'package:writer/controllers/note_controller.dart';
 import 'package:writer/data/models/note.dart';
 
 class HomeScreenController extends GetxController {
-
   final GlobalKey addNoteKey = GlobalKey();
   final GlobalKey searchKey = GlobalKey();
   final GlobalKey themeKey = GlobalKey();
@@ -17,7 +16,9 @@ class HomeScreenController extends GetxController {
   void onInit() {
     super.onInit();
     _registerShowcase();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkAndShowTutorial());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _checkAndShowTutorial(),
+    );
   }
 
   void _registerShowcase() {
@@ -88,20 +89,21 @@ This is a simple note to get you started.
 
   void _checkAndShowTutorial() {
     final settingsBox = Hive.box('settings');
-    bool hasCompletedOnboarding = settingsBox.get('hasCompletedOnboarding', defaultValue: false);
+    bool hasCompletedOnboarding = settingsBox.get(
+      'hasCompletedOnboarding',
+      defaultValue: false,
+    );
 
     if (!hasCompletedOnboarding) {
       _createWelcomeNote();
       Future.delayed(const Duration(milliseconds: 200), () {
-        ShowcaseView.get().startShowCase(
-          [
-            addNoteKey,
-            searchKey,
-            tagsKey,
-            openFileKey,
-            themeKey,
-          ],
-        );
+        ShowcaseView.get().startShowCase([
+          addNoteKey,
+          searchKey,
+          tagsKey,
+          openFileKey,
+          themeKey,
+        ]);
       });
     }
   }
@@ -109,8 +111,8 @@ This is a simple note to get you started.
   void _onShowcaseFinish() {
     final settingsBox = Hive.box('settings');
     if (!settingsBox.get('hasCompletedOnboarding', defaultValue: false)) {
-        settingsBox.put('hasCompletedOnboarding', true);
-        debugPrint("Onboarding marked as complete.");
+      settingsBox.put('hasCompletedOnboarding', true);
+      debugPrint("Onboarding marked as complete.");
     }
   }
 

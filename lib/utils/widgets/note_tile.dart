@@ -35,13 +35,18 @@ class NoteTile extends StatelessWidget {
             spacing: 6.0,
             runSpacing: 6.0,
             children: note.tags
-                .map((tag) => Chip(
-                      label: Text(tag),
-                      labelStyle: theme.textTheme.bodySmall,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      backgroundColor: theme.colorScheme.surface,
-                      side: BorderSide(color: theme.dividerColor),
-                    ))
+                .map(
+                  (tag) => Chip(
+                    label: Text(tag),
+                    labelStyle: theme.textTheme.bodySmall,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    backgroundColor: theme.colorScheme.surface,
+                    side: BorderSide(color: theme.dividerColor),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 8),

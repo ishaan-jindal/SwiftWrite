@@ -33,7 +33,7 @@ class WriterScreen extends GetView<WriterController> {
   @override
   Widget build(BuildContext context) {
     Get.put(WriterController());
-    
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -43,48 +43,62 @@ class WriterScreen extends GetView<WriterController> {
         top: false,
         child: Scaffold(
           appBar: AppBar(
-            title: Obx(() => controller.isPreview.value
-                ? Text(controller.titleController.text)
-                : TextField(
-                    controller: controller.titleController,
-                    decoration: const InputDecoration(
-                      hintText: 'Title',
-                      border: InputBorder.none,
-                      filled: false,
+            title: Obx(
+              () => controller.isPreview.value
+                  ? Text(controller.titleController.text)
+                  : TextField(
+                      controller: controller.titleController,
+                      decoration: const InputDecoration(
+                        hintText: 'Title',
+                        border: InputBorder.none,
+                        filled: false,
+                      ),
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  )),
+            ),
             actions: [
               Obx(() {
                 if (controller.type.value == FileType.markdown) {
                   return IconButton(
-                    icon: Icon(controller.isPreview.value ? Icons.visibility_off : Icons.visibility),
+                    icon: Icon(
+                      controller.isPreview.value
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
                     onPressed: controller.togglePreview,
                   );
                 }
 
                 if (controller.type.value == FileType.programmingLanguage) {
                   return IconButton(
-                    icon: Obx(() => controller.isLoading.value
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.play_arrow_rounded)),
+                    icon: Obx(
+                      () => controller.isLoading.value
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.play_arrow_rounded),
+                    ),
                     onPressed: () {
-                      controller.isLoading.value ? null : controller.runCode(context);
+                      controller.isLoading.value
+                          ? null
+                          : controller.runCode(context);
                     },
                   );
                 }
 
-                if (controller.type.value == FileType.unsupported || controller.type.value == FileType.plainText) {
+                if (controller.type.value == FileType.unsupported ||
+                    controller.type.value == FileType.plainText) {
                   return Center(
                     child: Chip(
                       padding: const EdgeInsets.all(0),
                       label: const Text('Plain Text'),
                       backgroundColor: Theme.of(context).colorScheme.surface,
-                      side: BorderSide(color: Theme.of(context).dividerColor, width: 2),
+                      side: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                        width: 2,
+                      ),
                       labelStyle: Theme.of(context).textTheme.bodySmall,
                     ),
                   );
@@ -92,11 +106,17 @@ class WriterScreen extends GetView<WriterController> {
 
                 if (controller.type.value == FileType.todo) {
                   return IconButton(
-                    icon: Obx(() => Icon(controller.isTodoSourceView.value ? Icons.list_alt : Icons.source)),
+                    icon: Obx(
+                      () => Icon(
+                        controller.isTodoSourceView.value
+                            ? Icons.list_alt
+                            : Icons.source,
+                      ),
+                    ),
                     onPressed: controller.toggleTodoSourceView,
                   );
                 }
-                
+
                 return const SizedBox.shrink();
               }),
               Obx(() {
@@ -118,19 +138,19 @@ class WriterScreen extends GetView<WriterController> {
                 } else {
                   return const SizedBox.shrink();
                 }
-              })
+              }),
             ],
           ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Obx(() {
-              final showPreview = controller.isPreview.value && controller.type.value == FileType.markdown;
+              final showPreview =
+                  controller.isPreview.value &&
+                  controller.type.value == FileType.markdown;
               final isTodo = controller.type.value == FileType.todo;
 
               if (showPreview) {
-                 return MarkdownView(
-                  data: controller.contentController.text,
-                );
+                return MarkdownView(data: controller.contentController.text);
               } else if (isTodo) {
                 return Obx(() {
                   if (controller.isTodoSourceView.value) {
@@ -154,4 +174,3 @@ class WriterScreen extends GetView<WriterController> {
     );
   }
 }
-

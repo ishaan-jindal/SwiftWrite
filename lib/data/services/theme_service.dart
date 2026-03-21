@@ -20,7 +20,6 @@ class ThemeService {
     return isDarkMode ? ThemeMode.dark : ThemeMode.light;
   }
 
-  
   bool get isDarkModePreferred {
     // Default to false (light mode) if no preference is saved
     return _box.get(_isDarkModeKey, defaultValue: false);
@@ -38,13 +37,12 @@ class ThemeService {
     return _getThemeMode(isDarkModePreferred);
   }
 
-  
   void _saveDarkModePreference(bool isDarkMode) {
     _box.put(_isDarkModeKey, isDarkMode);
   }
 
   void _saveFallModeState(bool isActive) {
-     _box.put(_isFallModeActiveKey, isActive);
+    _box.put(_isFallModeActiveKey, isActive);
   }
 
   void switchTheme() {
@@ -63,15 +61,18 @@ class ThemeService {
 
     _saveFallModeState(nextFallState);
 
-    ThemeData targetThemeData = _getThemeData(isDarkModePreferred, nextFallState);
+    ThemeData targetThemeData = _getThemeData(
+      isDarkModePreferred,
+      nextFallState,
+    );
     ThemeMode targetThemeMode = activeThemeMode;
 
     Get.changeTheme(targetThemeData);
     Get.changeThemeMode(targetThemeMode);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-       debugPrint("Forcing app update after fall toggle...");
-       Get.forceAppUpdate();
+      debugPrint("Forcing app update after fall toggle...");
+      Get.forceAppUpdate();
     });
 
     final message = nextFallState

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ContentEditor extends StatelessWidget {
   final TextEditingController controller;
   final TextStyle? style;
-  
+
   const ContentEditor({
     super.key,
     required this.controller,

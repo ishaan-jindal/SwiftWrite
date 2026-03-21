@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:writer/api/code_execution_service.dart';
 import 'package:writer/controllers/note_controller.dart';
 import 'package:writer/data/models/note.dart';
 import 'package:writer/utils/helpers/file_type_analyzer.dart';
 import 'package:writer/utils/helpers/file_helper.dart';
 
-import 'package:writer/api/judge0_service.dart';
 import 'package:writer/utils/constants/file_types.dart';
 
 class WriterController extends GetxController {
   final NoteController noteController = Get.find<NoteController>();
-  final Judge0Service judge0service = Judge0Service();
+  final CodeExecutionService codeExecutionService = CodeExecutionService();
 
   final titleController = TextEditingController();
   final contentController = TextEditingController();
@@ -67,7 +67,9 @@ class WriterController extends GetxController {
   }
 
   void _updatePreviewState() {
-    if (type.value == FileType.markdown && contentController.text.isNotEmpty && isPreview.value == true) {
+    if (type.value == FileType.markdown &&
+        contentController.text.isNotEmpty &&
+        isPreview.value == true) {
       isPreview.value = true;
     } else {
       isPreview.value = false;
@@ -85,7 +87,9 @@ class WriterController extends GetxController {
     final finalExtension = FileHelper.determineFinalExtension(title, null);
 
     if (existingNote != null) {
-      final isNewNote = !noteController.notes.any((note) => note.key == existingNote!.key);
+      final isNewNote = !noteController.notes.any(
+        (note) => note.key == existingNote!.key,
+      );
 
       existingNote!.title = title;
       existingNote!.content = content;
@@ -123,10 +127,7 @@ class WriterController extends GetxController {
     await file.writeAsString(content);
 
     await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path)],
-        text: 'Sharing: $fileName',
-      ),
+      ShareParams(files: [XFile(file.path)], text: 'Sharing: $fileName'),
     );
   }
 
@@ -145,11 +146,9 @@ class WriterController extends GetxController {
       );
 
       if (result != null && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Note saved'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Note saved')));
       }
     } catch (e) {
       throw Exception("Error saving note: $e");
@@ -173,25 +172,41 @@ class WriterController extends GetxController {
   }
 
   Future<void> runCode(BuildContext context) async {
-    final extension = titleController.text.split('.').last;
-    final languageId = languageIdMap[extension.toLowerCase()];
+    final extension = titleController.text.split('.').last.toLowerCase();
 
-    if (languageId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error\nUnsupported Language")));
+    // Map file extension → API language string
+    final languageMap = {'py': 'python', 'c': 'c'};
+
+    final language = languageMap[extension];
+
+    if (language == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error\nUnsupported Language")),
+      );
       return;
     }
 
     isLoading.value = true;
 
     try {
-      final result = await judge0service.executeCode(contentController.text, languageId);
-      Get.toNamed('/code-output', arguments: {
-        'code': contentController.text,
-        'result': result,
-        'language': extension,
-      });
+      final result = await codeExecutionService.executeCode(
+        code: contentController.text,
+        language: language,
+        inputs: [''], // optional, can be dynamic later
+      );
+
+      Get.toNamed(
+        '/code-output',
+        arguments: {
+          'code': contentController.text,
+          'result': result,
+          'language': language,
+        },
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       isLoading.value = false;
     }

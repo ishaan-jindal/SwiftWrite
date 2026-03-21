@@ -65,9 +65,7 @@ MarkdownStyleSheet getMarkdownStyleSheet(BuildContext context) {
     ),
     tableCellsPadding: const EdgeInsets.all(6),
     horizontalRuleDecoration: BoxDecoration(
-      border: Border(
-        bottom: BorderSide(width: 1.0, color: theme.dividerColor),
-      ),
+      border: Border(bottom: BorderSide(width: 1.0, color: theme.dividerColor)),
     ),
     img: textTheme.bodyMedium,
   );
