@@ -34,6 +34,7 @@ To build a minimalist writer app that prioritizes a fast, distraction-free exper
 - **Markdown Rendering:** [flutter_markdown](https://pub.dev/packages/flutter_markdown)
 - **File Sharing:** [share_plus](https://pub.dev/packages/share_plus)
 - **File Picking:** [file_picker](https://pub.dev/packages/file_picker)
+- **Code Execution:** [code-executor](https://github.com/SacredNightmare99/code-executor)
 
 ## Future Features
 
