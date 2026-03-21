@@ -43,7 +43,7 @@ class TodoScreen extends StatelessWidget {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10)
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
@@ -63,9 +63,7 @@ class TodoScreen extends StatelessWidget {
               );
             } else if (item is MarkdownItem) {
               final isHorizontalRule = item.markdownText.trim() == '---';
-              final child = MarkdownBody(
-                data: item.markdownText,
-              );
+              final child = MarkdownBody(data: item.markdownText);
 
               return Row(
                 key: ValueKey(item),

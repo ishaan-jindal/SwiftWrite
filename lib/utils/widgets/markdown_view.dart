@@ -8,12 +8,10 @@ class MarkdownView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Markdown(
       data: data,
       styleSheet: getMarkdownStyleSheet(context),
       selectable: true,
     );
   }
-
 }

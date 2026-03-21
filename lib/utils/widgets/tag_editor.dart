@@ -21,21 +21,18 @@ class TagEditor extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Obx(() => Wrap(
-              spacing: 8.0,
-              runSpacing: 4.0,
-              children: tags.map((tag) {
-                return Chip(
-                  label: Text(tag),
-                  onDeleted: () => onRemoveTag(tag),
-                );
-              }).toList(),
-            )),
+        Obx(
+          () => Wrap(
+            spacing: 8.0,
+            runSpacing: 4.0,
+            children: tags.map((tag) {
+              return Chip(label: Text(tag), onDeleted: () => onRemoveTag(tag));
+            }).toList(),
+          ),
+        ),
         TextField(
           controller: tagController,
-          decoration: const InputDecoration(
-            hintText: 'Add a tag...',
-          ),
+          decoration: const InputDecoration(hintText: 'Add a tag...'),
           onSubmitted: onAddTag,
         ),
       ],

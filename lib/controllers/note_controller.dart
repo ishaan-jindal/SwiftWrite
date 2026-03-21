@@ -17,20 +17,31 @@ class NoteController extends GetxController {
   }
 
   RxList<Note> get filteredNotes {
-    return notes.where((note) {
-      final titleMaches = note.title.toLowerCase().contains(searchQuery.value.toLowerCase());
-      final contentMaches = note.content.toLowerCase().contains(searchQuery.value.toLowerCase());
-      final tagMaches = selectedTag.value.isEmpty || note.tags.contains(selectedTag.value);
+    return notes
+        .where((note) {
+          final titleMaches = note.title.toLowerCase().contains(
+            searchQuery.value.toLowerCase(),
+          );
+          final contentMaches = note.content.toLowerCase().contains(
+            searchQuery.value.toLowerCase(),
+          );
+          final tagMaches =
+              selectedTag.value.isEmpty ||
+              note.tags.contains(selectedTag.value);
 
-      return (titleMaches || contentMaches) && tagMaches;
-    }).toList().obs;
+          return (titleMaches || contentMaches) && tagMaches;
+        })
+        .toList()
+        .obs;
   }
 
   void fetchAllNotes() {
     notes.value = _databaseService.getAllNotes();
     final notesWithNullOrder = notes.where((n) => n.order == null).toList();
     if (notesWithNullOrder.isNotEmpty) {
-      int maxOrder = notes.map((n) => n.order ?? -1).reduce((a, b) => a > b ? a : b);
+      int maxOrder = notes
+          .map((n) => n.order ?? -1)
+          .reduce((a, b) => a > b ? a : b);
       for (var note in notesWithNullOrder) {
         maxOrder++;
         note.order = maxOrder;
@@ -51,15 +62,17 @@ class NoteController extends GetxController {
     currentList.insert(newIndex, movedNote);
 
     final reorderedKeys = currentList.map((n) => n.key).toSet();
-    final otherNotes = notes.where((n) => !reorderedKeys.contains(n.key)).toList();
+    final otherNotes = notes
+        .where((n) => !reorderedKeys.contains(n.key))
+        .toList();
     final List<Note> fullNewOrder = [...currentList, ...otherNotes];
 
     for (int i = 0; i < fullNewOrder.length; i++) {
-        final note = fullNewOrder[i];
-        if (note.order != i) {
-            note.order = i;
-            _databaseService.updateNote(note.key, note);
-        }
+      final note = fullNewOrder[i];
+      if (note.order != i) {
+        note.order = i;
+        _databaseService.updateNote(note.key, note);
+      }
     }
 
     fetchAllNotes();

@@ -17,7 +17,7 @@ SwiftWrite is a simple, fast, and elegant note-taking application built with Flu
 
 The project follows a feature-driven architecture. Here's a quick rundown of the key directories under `lib/`:
 
--   `api/`: Contains services for interacting with external APIs (like the planned Judge0 integration).
+-   `api/`: Contains services for interacting with external APIs.
 -   `controllers/`: Holds the GetX controllers that manage the application's state and business logic.
 -   `data/`: Includes data models (`models/`) and services for data persistence (`services/`).
 -   `utils/`: A place for shared constants, helper functions, themes, and custom widgets.
