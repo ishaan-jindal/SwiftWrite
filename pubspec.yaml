@@ -22,7 +22,6 @@ dependencies:
   file_picker: ^10.3.3
   http: ^1.5.0
   flutter_dotenv: ^6.0.0
-  showcaseview: ^5.0.1
 
 dev_dependencies:
   flutter_test:

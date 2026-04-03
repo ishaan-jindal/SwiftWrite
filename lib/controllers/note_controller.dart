@@ -19,17 +19,17 @@ class NoteController extends GetxController {
   RxList<Note> get filteredNotes {
     return notes
         .where((note) {
-          final titleMaches = note.title.toLowerCase().contains(
+          final titleMatches = note.title.toLowerCase().contains(
             searchQuery.value.toLowerCase(),
           );
-          final contentMaches = note.content.toLowerCase().contains(
+          final contentMatches = note.content.toLowerCase().contains(
             searchQuery.value.toLowerCase(),
           );
-          final tagMaches =
+          final tagMatches =
               selectedTag.value.isEmpty ||
               note.tags.contains(selectedTag.value);
 
-          return (titleMaches || contentMaches) && tagMaches;
+          return (titleMatches || contentMatches) && tagMatches;
         })
         .toList()
         .obs;
@@ -104,7 +104,7 @@ class NoteController extends GetxController {
     searchQuery.value = query;
   }
 
-  void setSeletedTag(String tag) {
+  void setSelectedTag(String tag) {
     if (selectedTag.value == tag) {
       selectedTag.value = '';
     } else {

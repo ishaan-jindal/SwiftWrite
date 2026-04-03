@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:writer/api/code_execution_service.dart';
 import 'package:writer/controllers/note_controller.dart';
 import 'package:writer/data/models/note.dart';
+import 'package:writer/data/services/feature_gate_service.dart';
 import 'package:writer/utils/helpers/file_type_analyzer.dart';
 import 'package:writer/utils/helpers/file_helper.dart';
 
@@ -15,6 +16,7 @@ import 'package:writer/utils/constants/file_types.dart';
 
 class WriterController extends GetxController {
   final NoteController noteController = Get.find<NoteController>();
+  final FeatureGateService featureGateService = Get.find<FeatureGateService>();
   final CodeExecutionService codeExecutionService = CodeExecutionService();
 
   final titleController = TextEditingController();
@@ -171,7 +173,27 @@ class WriterController extends GetxController {
     isPreview.toggle();
   }
 
+  bool get canRunCode => featureGateService.canUseCodeExecution;
+
+  void showFeatureLockedMessage(
+    BuildContext context, {
+    required String featureName,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$featureName is disabled in Offline-Only mode. Switch to Cloud-Enabled mode to use internet features.',
+        ),
+      ),
+    );
+  }
+
   Future<void> runCode(BuildContext context) async {
+    if (!canRunCode) {
+      showFeatureLockedMessage(context, featureName: 'Code execution');
+      return;
+    }
+
     final extension = titleController.text.split('.').last.toLowerCase();
 
     // Map file extension → API language string
