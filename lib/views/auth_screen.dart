@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:writer/controllers/note_controller.dart';
 import 'package:writer/data/services/auth_service.dart';
+import 'package:writer/data/services/cloud_sync_service.dart';
 import 'package:writer/data/services/firebase_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -43,9 +44,15 @@ class _AuthScreenState extends State<AuthScreen> {
       final initialized = await FirebaseService.initializeFromEnv();
       if (initialized) {
         _authService = Get.put(AuthService(), permanent: true);
+        if (!Get.isRegistered<CloudSyncService>()) {
+          Get.put(CloudSyncService(), permanent: true);
+        }
       }
     } else {
       _authService = Get.find<AuthService>();
+      if (!Get.isRegistered<CloudSyncService>()) {
+        Get.put(CloudSyncService(), permanent: true);
+      }
     }
 
     if (mounted) {

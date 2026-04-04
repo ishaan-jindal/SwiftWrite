@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:writer/data/services/auth_service.dart';
+import 'package:writer/data/services/cloud_sync_service.dart';
 import 'package:writer/data/services/firebase_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -37,6 +38,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
 
       _authService = Get.put(AuthService(), permanent: true);
+      if (!Get.isRegistered<CloudSyncService>()) {
+        Get.put(CloudSyncService(), permanent: true);
+      }
     }
 
     if (mounted) {

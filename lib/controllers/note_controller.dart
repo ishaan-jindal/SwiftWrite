@@ -5,7 +5,7 @@ import 'package:writer/data/services/database_service.dart';
 
 class NoteController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
-  final CloudSyncService? _cloudSyncService =
+  CloudSyncService? get _cloudSyncService =>
       Get.isRegistered<CloudSyncService>()
       ? Get.find<CloudSyncService>()
       : null;
@@ -108,16 +108,6 @@ class NoteController extends GetxController {
     await _databaseService.deleteNote(key);
     fetchAllNotes();
     await _cloudSyncService?.deleteNote(localKey: key);
-  }
-
-  Future<void> syncAllNotesToCloud() async {
-    if (_cloudSyncService == null) {
-      return;
-    }
-
-    for (final note in notes) {
-      await _cloudSyncService.upsertNote(localKey: note.key, note: note);
-    }
   }
 
   Future<void> syncWithCloudMergeLatestWins() async {
