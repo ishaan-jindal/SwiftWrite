@@ -63,9 +63,13 @@ class FirebaseService {
   }
 
   static bool _isMissing(String? a, String? b, String? c, String? d) {
-    return a == null || a.isEmpty ||
-        b == null || b.isEmpty ||
-        c == null || c.isEmpty ||
-        d == null || d.isEmpty;
+    return a == null ||
+        a.isEmpty ||
+        b == null ||
+        b.isEmpty ||
+        c == null ||
+        c.isEmpty ||
+        d == null ||
+        d.isEmpty;
   }
 }

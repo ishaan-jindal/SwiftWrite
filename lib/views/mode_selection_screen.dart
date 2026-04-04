@@ -6,7 +6,8 @@ class ModeSelectionScreen extends StatelessWidget {
   const ModeSelectionScreen({super.key});
 
   Future<void> _selectMode(AppMode mode) async {
-    final FeatureGateService featureGateService = Get.find<FeatureGateService>();
+    final FeatureGateService featureGateService =
+        Get.find<FeatureGateService>();
     await featureGateService.setAppMode(mode);
     Get.offAllNamed('/');
   }

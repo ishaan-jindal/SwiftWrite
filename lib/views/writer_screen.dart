@@ -73,7 +73,8 @@ class WriterScreen extends GetView<WriterController> {
                   if (!controller.canRunCode) {
                     return IconButton(
                       icon: const Icon(Icons.cloud_off),
-                      tooltip: 'Code execution is disabled in Offline-Only mode',
+                      tooltip:
+                          'Code execution is disabled in Offline-Only mode',
                       onPressed: () => controller.showFeatureLockedMessage(
                         context,
                         featureName: 'Code execution',

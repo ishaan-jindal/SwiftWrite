@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:writer/data/models/note.dart';
+import 'package:writer/data/services/auth_service.dart';
 import 'package:writer/data/services/feature_gate_service.dart';
 import 'package:writer/data/services/firebase_service.dart';
 import 'package:writer/data/services/theme_service.dart';
@@ -17,7 +18,10 @@ void main() async {
   final settingsBox = Hive.box('settings');
 
   if (settingsBox.get('appMode') == AppMode.cloudEnabled.name) {
-    await FirebaseService.initializeFromEnv();
+    final firebaseReady = await FirebaseService.initializeFromEnv();
+    if (firebaseReady) {
+      Get.put(AuthService(), permanent: true);
+    }
   }
 
   Hive.registerAdapter(NoteAdapter());
@@ -30,14 +34,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final ThemeService themeService = Get.isRegistered<ThemeService>()
-    ? Get.find<ThemeService>()
-    : Get.put(ThemeService(), permanent: true);
+    final ThemeService themeService = Get.isRegistered<ThemeService>()
+        ? Get.find<ThemeService>()
+        : Get.put(ThemeService(), permanent: true);
 
-  final FeatureGateService featureGateService =
-    Get.isRegistered<FeatureGateService>()
-    ? Get.find<FeatureGateService>()
-    : Get.put(FeatureGateService(), permanent: true);
+    final FeatureGateService featureGateService =
+        Get.isRegistered<FeatureGateService>()
+        ? Get.find<FeatureGateService>()
+        : Get.put(FeatureGateService(), permanent: true);
 
     final ThemeData initialLightTheme = themeService.isFallModeActive
         ? AppTheme.lightThemeFall

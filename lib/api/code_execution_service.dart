@@ -15,9 +15,7 @@ class CodeExecutionService {
     try {
       final uri = Uri.parse('$_baseUrl/health');
 
-      final response = await http
-          .get(uri)
-          .timeout(const Duration(seconds: 3));
+      final response = await http.get(uri).timeout(const Duration(seconds: 3));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -79,7 +77,6 @@ class CodeExecutionService {
     int maxAttempts = 20,
     Duration delay = const Duration(seconds: 1),
   }) async {
-
     final isHealthy = await isServerHealthy();
     if (!isHealthy) {
       throw Exception('Code execution server is not running');

@@ -179,13 +179,13 @@ class WriterController extends GetxController {
     BuildContext context, {
     required String featureName,
   }) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '$featureName is disabled in Offline-Only mode. Switch to Cloud-Enabled mode to use internet features.',
-        ),
-      ),
-    );
+    final message = featureGateService.hasCloudSession
+        ? '$featureName is currently unavailable.'
+        : '$featureName is disabled until you sign in to your cloud account.';
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> runCode(BuildContext context) async {

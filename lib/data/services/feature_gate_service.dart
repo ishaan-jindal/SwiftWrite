@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:writer/data/services/auth_service.dart';
 
 enum AppMode { undecided, offlineOnly, cloudEnabled }
 
@@ -22,9 +23,13 @@ class FeatureGateService extends GetxService {
   bool get isOfflineOnlyMode => appMode == AppMode.offlineOnly;
   bool get isCloudEnabledMode => appMode == AppMode.cloudEnabled;
 
-  bool get canUseInternetFeatures => isCloudEnabledMode;
-  bool get canUseCodeExecution => isCloudEnabledMode;
-  bool get canUseCloudSync => isCloudEnabledMode;
+  bool get hasCloudSession =>
+      Get.isRegistered<AuthService>() && Get.find<AuthService>().isSignedIn;
+
+  bool get canUseInternetFeatures => hasCloudSession;
+  bool get canUseCodeExecution => hasCloudSession;
+  bool get canUseCloudSync => hasCloudSession;
+  bool get canUseCloudShare => canUseCloudSync;
 
   Future<void> setAppMode(AppMode mode) async {
     await _settingsBox.put(_appModeKey, mode.name);

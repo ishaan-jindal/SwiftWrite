@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:writer/views/auth_screen.dart';
 import 'package:writer/views/code_output_view.dart';
 import 'package:writer/views/home_screen.dart';
 import 'package:writer/views/mode_selection_screen.dart';
@@ -20,6 +21,13 @@ class AppRoutes {
     GetPage(
       name: '/mode-selection',
       page: () => const ModeSelectionScreen(),
+      transition: Transition.fadeIn,
+      curve: Curves.easeIn,
+      transitionDuration: Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: '/auth',
+      page: () => const AuthScreen(),
       transition: Transition.fadeIn,
       curve: Curves.easeIn,
       transitionDuration: Duration(milliseconds: 300),

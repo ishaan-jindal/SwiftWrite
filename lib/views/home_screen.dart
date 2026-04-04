@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:writer/controllers/note_controller.dart';
+import 'package:writer/data/services/auth_service.dart';
 import 'package:writer/data/services/theme_service.dart';
 import 'package:writer/utils/helpers/helpers.dart';
 import 'package:writer/utils/widgets/note_tile.dart';
@@ -12,6 +13,9 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final NoteController noteController = Get.put(NoteController());
     final TextEditingController searchController = TextEditingController();
+    final AuthService? authService = Get.isRegistered<AuthService>()
+        ? Get.find<AuthService>()
+        : null;
 
     return SafeArea(
       top: false,
@@ -26,13 +30,20 @@ class HomeScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.brightness_6),
               onPressed: () => Get.find<ThemeService>().switchTheme(),
-              onLongPress: () => Get.find<ThemeService>().toggleFallTheme(
-                context,
-              ),
+              onLongPress: () =>
+                  Get.find<ThemeService>().toggleFallTheme(context),
             ),
             IconButton(
               icon: const Icon(Icons.settings_outlined),
               onPressed: () => Get.toNamed('/settings'),
+            ),
+            IconButton(
+              icon: Icon(
+                authService?.isSignedIn == true
+                    ? Icons.verified_user_outlined
+                    : Icons.account_circle_outlined,
+              ),
+              onPressed: () => Get.toNamed('/auth'),
             ),
           ],
         ),
