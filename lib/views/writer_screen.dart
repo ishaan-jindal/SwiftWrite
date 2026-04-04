@@ -32,8 +32,6 @@ class WriterScreen extends GetView<WriterController> {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(WriterController());
-
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -73,8 +71,7 @@ class WriterScreen extends GetView<WriterController> {
                   if (!controller.canRunCode) {
                     return IconButton(
                       icon: const Icon(Icons.cloud_off),
-                      tooltip:
-                          'Code execution is disabled in Offline-Only mode',
+                      tooltip: 'Code execution is disabled until you sign in.',
                       onPressed: () => controller.showFeatureLockedMessage(
                         context,
                         featureName: 'Code execution',
@@ -83,15 +80,13 @@ class WriterScreen extends GetView<WriterController> {
                   }
 
                   return IconButton(
-                    icon: Obx(
-                      () => controller.isLoading.value
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.play_arrow_rounded),
-                    ),
+                    icon: controller.isLoading.value
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.play_arrow_rounded),
                     onPressed: () {
                       controller.isLoading.value
                           ? null
@@ -118,12 +113,10 @@ class WriterScreen extends GetView<WriterController> {
 
                 if (controller.type.value == FileType.todo) {
                   return IconButton(
-                    icon: Obx(
-                      () => Icon(
-                        controller.isTodoSourceView.value
-                            ? Icons.list_alt
-                            : Icons.source,
-                      ),
+                    icon: Icon(
+                      controller.isTodoSourceView.value
+                          ? Icons.list_alt
+                          : Icons.source,
                     ),
                     onPressed: controller.toggleTodoSourceView,
                   );
@@ -164,18 +157,16 @@ class WriterScreen extends GetView<WriterController> {
               if (showPreview) {
                 return MarkdownView(data: controller.contentController.text);
               } else if (isTodo) {
-                return Obx(() {
-                  if (controller.isTodoSourceView.value) {
-                    return _buildEditorWithTags(context);
-                  } else {
-                    return TodoScreen(
-                      data: controller.contentController.text,
-                      onChanged: (newData) {
-                        controller.contentController.text = newData;
-                      },
-                    );
-                  }
-                });
+                if (controller.isTodoSourceView.value) {
+                  return _buildEditorWithTags(context);
+                } else {
+                  return TodoScreen(
+                    data: controller.contentController.text,
+                    onChanged: (newData) {
+                      controller.contentController.text = newData;
+                    },
+                  );
+                }
               } else {
                 return _buildEditorWithTags(context);
               }

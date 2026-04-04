@@ -16,23 +16,19 @@ class NoteController extends GetxController {
     fetchAllNotes();
   }
 
-  RxList<Note> get filteredNotes {
-    return notes
-        .where((note) {
-          final titleMatches = note.title.toLowerCase().contains(
-            searchQuery.value.toLowerCase(),
-          );
-          final contentMatches = note.content.toLowerCase().contains(
-            searchQuery.value.toLowerCase(),
-          );
-          final tagMatches =
-              selectedTag.value.isEmpty ||
-              note.tags.contains(selectedTag.value);
+  List<Note> get filteredNotes {
+    return notes.where((note) {
+      final titleMatches = note.title.toLowerCase().contains(
+        searchQuery.value.toLowerCase(),
+      );
+      final contentMatches = note.content.toLowerCase().contains(
+        searchQuery.value.toLowerCase(),
+      );
+      final tagMatches =
+          selectedTag.value.isEmpty || note.tags.contains(selectedTag.value);
 
-          return (titleMatches || contentMatches) && tagMatches;
-        })
-        .toList()
-        .obs;
+      return (titleMatches || contentMatches) && tagMatches;
+    }).toList();
   }
 
   void fetchAllNotes() {

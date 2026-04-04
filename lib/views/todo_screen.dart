@@ -4,19 +4,52 @@ import 'package:get/get.dart';
 import 'package:writer/controllers/todo_controller.dart';
 import 'package:writer/data/models/todo_list_item.dart';
 
-class TodoScreen extends StatelessWidget {
+class TodoScreen extends StatefulWidget {
   final String data;
   final ValueChanged<String> onChanged;
 
   const TodoScreen({super.key, required this.data, required this.onChanged});
 
   @override
-  Widget build(BuildContext context) {
-    final TodoController controller = Get.put(
-      TodoController(onMarkdownChanged: onChanged, initialData: data),
-    );
-    controller.updateFromMarkdown(data);
+  State<TodoScreen> createState() => _TodoScreenState();
+}
 
+class _TodoScreenState extends State<TodoScreen> {
+  late final String _controllerTag;
+  late final TodoController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerTag = 'todo_controller_${identityHashCode(this)}';
+    Get.put(
+      TodoController(
+        onMarkdownChanged: widget.onChanged,
+        initialData: widget.data,
+      ),
+      tag: _controllerTag,
+    );
+    controller = Get.find<TodoController>(tag: _controllerTag);
+  }
+
+  @override
+  void didUpdateWidget(covariant TodoScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.data != widget.data) {
+      controller.updateFromMarkdown(widget.data);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (Get.isRegistered<TodoController>(tag: _controllerTag)) {
+      Get.delete<TodoController>(tag: _controllerTag);
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(
         () => ReorderableListView.builder(

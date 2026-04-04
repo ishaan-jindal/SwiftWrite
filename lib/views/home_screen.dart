@@ -6,17 +6,36 @@ import 'package:writer/data/services/theme_service.dart';
 import 'package:writer/utils/helpers/helpers.dart';
 import 'package:writer/utils/widgets/note_tile.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final NoteController noteController = Get.put(NoteController());
-    final TextEditingController searchController = TextEditingController();
-    final AuthService? authService = Get.isRegistered<AuthService>()
-        ? Get.find<AuthService>()
-        : null;
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
+  late final NoteController _noteController;
+  late final TextEditingController _searchController;
+  AuthService? _authService;
+
+  @override
+  void initState() {
+    super.initState();
+    _noteController = Get.find<NoteController>();
+    _searchController = TextEditingController();
+    if (Get.isRegistered<AuthService>()) {
+      _authService = Get.find<AuthService>();
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -39,7 +58,7 @@ class HomeScreen extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(
-                authService?.isSignedIn == true
+                _authService?.isSignedIn == true
                     ? Icons.verified_user_outlined
                     : Icons.account_circle_outlined,
               ),
@@ -52,12 +71,12 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               TextField(
-                controller: searchController,
+                controller: _searchController,
                 decoration: const InputDecoration(
                   hintText: 'Search notes...',
                   prefixIcon: Icon(Icons.search),
                 ),
-                onChanged: noteController.setSearchQuery,
+                onChanged: _noteController.setSearchQuery,
               ),
               const SizedBox(height: 10),
               Obx(
@@ -65,11 +84,11 @@ class HomeScreen extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   child: Wrap(
                     spacing: 8.0,
-                    children: noteController.uniqueTags.map((tag) {
+                    children: _noteController.uniqueTags.map((tag) {
                       return ChoiceChip(
                         label: Text(tag),
-                        selected: noteController.selectedTag.value == tag,
-                        onSelected: (_) => noteController.setSelectedTag(tag),
+                        selected: _noteController.selectedTag.value == tag,
+                        onSelected: (_) => _noteController.setSelectedTag(tag),
                       );
                     }).toList(),
                   ),
@@ -77,10 +96,11 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Expanded(
-                child: Obx(
-                  () => ReorderableListView.builder(
+                child: Obx(() {
+                  final filtered = _noteController.filteredNotes;
+                  return ReorderableListView.builder(
                     onReorder: (oldIndex, newIndex) {
-                      noteController.reorderNotes(oldIndex, newIndex);
+                      _noteController.reorderNotes(oldIndex, newIndex);
                     },
                     proxyDecorator:
                         (Widget child, int index, Animation<double> animation) {
@@ -91,15 +111,15 @@ class HomeScreen extends StatelessWidget {
                             child: child,
                           );
                         },
-                    itemCount: noteController.filteredNotes.length,
+                    itemCount: filtered.length,
                     itemBuilder: (context, index) {
-                      final note = noteController.filteredNotes[index];
+                      final note = filtered[index];
                       return Dismissible(
                         key: Key(note.key.toString()),
                         direction: DismissDirection.endToStart,
                         onDismissed: (direction) {
                           final deletedNote = note;
-                          noteController.deleteNote(deletedNote.key);
+                          _noteController.deleteNote(deletedNote.key);
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -111,7 +131,7 @@ class HomeScreen extends StatelessWidget {
                               action: SnackBarAction(
                                 label: "Undo",
                                 onPressed: () {
-                                  noteController.addNote(deletedNote);
+                                  _noteController.addNote(deletedNote);
                                 },
                               ),
                             ),
@@ -142,8 +162,8 @@ class HomeScreen extends StatelessWidget {
                         ),
                       );
                     },
-                  ),
-                ),
+                  );
+                }),
               ),
             ],
           ),
