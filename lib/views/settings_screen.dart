@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:writer/data/services/feature_gate_service.dart';
+import 'package:writer/data/services/firebase_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -63,6 +64,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final targetMode = _cloudEnabledDraft
         ? AppMode.cloudEnabled
         : AppMode.offlineOnly;
+
+    if (targetMode == AppMode.cloudEnabled) {
+      final initialized = await FirebaseService.initializeFromEnv();
+      if (!initialized && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not initialize Firebase. Check your .env Firebase values first.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+    }
 
     await _featureGateService.setAppMode(targetMode);
     _initialCloudEnabled = _cloudEnabledDraft;

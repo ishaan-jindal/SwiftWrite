@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:writer/data/models/note.dart';
 import 'package:writer/data/services/feature_gate_service.dart';
+import 'package:writer/data/services/firebase_service.dart';
 import 'package:writer/data/services/theme_service.dart';
 import 'package:writer/utils/constants/app_routes.dart';
 import 'package:writer/utils/themes/theme.dart';
@@ -13,6 +14,12 @@ void main() async {
   await dotenv.load(fileName: '.env');
   await Hive.initFlutter();
   await Hive.openBox('settings');
+  final settingsBox = Hive.box('settings');
+
+  if (settingsBox.get('appMode') == AppMode.cloudEnabled.name) {
+    await FirebaseService.initializeFromEnv();
+  }
+
   Hive.registerAdapter(NoteAdapter());
   await Hive.openBox<Note>('notes');
   runApp(MyApp());
