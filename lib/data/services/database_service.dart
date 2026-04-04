@@ -4,8 +4,8 @@ import 'package:writer/data/models/note.dart';
 class DatabaseService {
   final Box<Note> _noteBox = Hive.box<Note>('notes');
 
-  Future<void> addNote(Note note) async {
-    await _noteBox.add(note);
+  Future<dynamic> addNote(Note note) async {
+    return _noteBox.add(note);
   }
 
   Future<void> updateNote(dynamic key, Note note) async {

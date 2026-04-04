@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:writer/controllers/note_controller.dart';
 import 'package:writer/data/services/auth_service.dart';
 import 'package:writer/data/services/firebase_service.dart';
 
@@ -89,6 +90,10 @@ class _AuthScreenState extends State<AuthScreen> {
       }
 
       if (mounted) {
+        if (Get.isRegistered<NoteController>()) {
+          await Get.find<NoteController>().syncWithCloudMergeLatestWins();
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

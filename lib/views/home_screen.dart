@@ -18,6 +18,21 @@ class _HomeScreenState extends State<HomeScreen> {
   late final TextEditingController _searchController;
   AuthService? _authService;
 
+  Future<void> _pullToSync() async {
+    await _noteController.syncWithCloudMergeLatestWins();
+    if (!mounted) {
+      return;
+    }
+
+    final isSignedIn = _authService?.isSignedIn == true;
+    final message =
+        isSignedIn
+            ? 'Notes synced with cloud database.'
+            : 'Local notes refreshed. Sign in to sync with cloud.';
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,70 +113,73 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: Obx(() {
                   final filtered = _noteController.filteredNotes;
-                  return ReorderableListView.builder(
-                    onReorder: (oldIndex, newIndex) {
-                      _noteController.reorderNotes(oldIndex, newIndex);
-                    },
-                    proxyDecorator:
-                        (Widget child, int index, Animation<double> animation) {
-                          return Material(
-                            color: Theme.of(context).cardColor,
-                            elevation: 6.0,
-                            borderRadius: BorderRadius.circular(12.0),
-                            child: child,
-                          );
-                        },
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      final note = filtered[index];
-                      return Dismissible(
-                        key: Key(note.key.toString()),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (direction) {
-                          final deletedNote = note;
-                          _noteController.deleteNote(deletedNote.key);
+                  return RefreshIndicator(
+                    onRefresh: _pullToSync,
+                    child: ReorderableListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      onReorder: (oldIndex, newIndex) {
+                        _noteController.reorderNotes(oldIndex, newIndex);
+                      },
+                      proxyDecorator: (Widget child, int index, Animation<double> animation) {
+                        return Material(
+                          color: Theme.of(context).cardColor,
+                          elevation: 6.0,
+                          borderRadius: BorderRadius.circular(12.0),
+                          child: child,
+                        );
+                      },
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final note = filtered[index];
+                        return Dismissible(
+                          key: Key(note.key.toString()),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (direction) {
+                            final deletedNote = note;
+                            _noteController.deleteNote(deletedNote.key);
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'The note "${deletedNote.title}" has been deleted.',
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'The note "${deletedNote.title}" has been deleted.',
+                                ),
+                                duration: const Duration(seconds: 2),
+                                dismissDirection: direction,
+                                action: SnackBarAction(
+                                  label: "Undo",
+                                  onPressed: () {
+                                    _noteController.addNote(deletedNote);
+                                  },
+                                ),
                               ),
-                              duration: const Duration(seconds: 2),
-                              dismissDirection: direction,
-                              action: SnackBarAction(
-                                label: "Undo",
-                                onPressed: () {
-                                  _noteController.addNote(deletedNote);
-                                },
-                              ),
+                            );
+                          },
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 20.0),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
-                          );
-                        },
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20.0),
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.error,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.delete,
+                              color: Theme.of(context).colorScheme.onError,
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.error,
-                            borderRadius: BorderRadius.circular(10),
+                          child: NoteTile(
+                            note: note,
+                            index: index,
+                            onTap: () => Get.toNamed('/writer', arguments: note),
+                            onLongPress: () =>
+                                AppHelpers.showNoteOptions(context, note),
                           ),
-                          child: Icon(
-                            Icons.delete,
-                            color: Theme.of(context).colorScheme.onError,
-                          ),
-                        ),
-                        child: NoteTile(
-                          note: note,
-                          index: index,
-                          onTap: () => Get.toNamed('/writer', arguments: note),
-                          onLongPress: () =>
-                              AppHelpers.showNoteOptions(context, note),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   );
                 }),
               ),

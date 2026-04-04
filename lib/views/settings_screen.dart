@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:writer/data/services/auth_service.dart';
-import 'package:writer/data/services/feature_gate_service.dart';
 import 'package:writer/data/services/firebase_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -12,13 +11,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late final FeatureGateService _featureGateService;
   AuthService? _authService;
 
   @override
   void initState() {
     super.initState();
-    _featureGateService = Get.find<FeatureGateService>();
     if (Get.isRegistered<AuthService>()) {
       _authService = Get.find<AuthService>();
     }
@@ -73,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _featureGateService.hasCloudSession
+                      _authService?.isSignedIn == true
                           ? 'Enabled automatically because you are signed in.'
                           : 'Disabled because no account is signed in.',
                       style: Theme.of(context).textTheme.bodyMedium,
