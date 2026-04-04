@@ -1,0 +1,108 @@
+name: Flutter Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Prepare .env
+        run: |
+          if [ -n "${{ secrets.ENV_FILE }}" ]; then
+            echo "${{ secrets.ENV_FILE }}" > .env
+          else
+            cp example.env .env
+          fi
+
+      - name: Validate release signing secrets
+        run: |
+          test -n "${{ secrets.KEY_PROPERTIES }}" || (echo "Missing KEY_PROPERTIES secret" && exit 1)
+          test -n "${{ secrets.KEYSTORE_BASE64 }}" || (echo "Missing KEYSTORE_BASE64 secret" && exit 1)
+          if [ -z "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ] && [ -z "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo "Missing GOOGLE_SERVICES_JSON or GOOGLE_SERVICES_JSON_B64 secret"
+            exit 1
+          fi
+
+      - name: Prepare google-services.json
+        run: |
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
+          elif [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json
+          else
+            echo "Missing GOOGLE_SERVICES_JSON or GOOGLE_SERVICES_JSON_B64 secret"
+            exit 1
+          fi
+
+      - name: Create key.properties
+        run: echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
+
+      - name: Decode release keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/writer-key.jks
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build release APK and AAB
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+
+      - name: Resolve release version
+        id: app_version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Rename release files
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/SwiftWrite-${{ steps.app_version.outputs.version }}.apk
+          mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/SwiftWrite-${{ steps.app_version.outputs.version }}.aab
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: swiftwrite-release-${{ steps.app_version.outputs.version }}
+          path: |
+            build/app/outputs/flutter-apk/SwiftWrite-${{ steps.app_version.outputs.version }}.apk
+            build/app/outputs/bundle/release/SwiftWrite-${{ steps.app_version.outputs.version }}.aab
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/flutter-apk/SwiftWrite-${{ steps.app_version.outputs.version }}.apk
+            build/app/outputs/bundle/release/SwiftWrite-${{ steps.app_version.outputs.version }}.aab

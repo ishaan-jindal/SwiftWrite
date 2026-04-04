@@ -1,13 +1,17 @@
-name: Build Flutter APK
+name: Flutter CI
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build:
+  verify-and-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,39 +28,43 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "beta"
+          cache: true
 
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Create .env file
-        run: echo "${{ secrets.ENV_FILE }}" > .env
-
-      - name: Create key.properties file
-        run: echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
-
-      - name: Decode Keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/writer-key.jks
-
-      - name: Build release APK
-        run: flutter build apk --release
-
-      - name: Rename APK
-        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/SwiftWrite.apk
-
-      - name: Delete Previous Release and Tag
+      - name: Prepare .env
         run: |
-          gh release delete latest --yes || echo "No previous release to delete."
-          git push origin --delete latest || echo "No previous tag to delete."
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if [ -n "${{ secrets.ENV_FILE }}" ]; then
+            echo "${{ secrets.ENV_FILE }}" > .env
+          else
+            cp example.env .env
+          fi
 
-      - name: Create New Release
-        uses: softprops/action-gh-release@v2
+      - name: Prepare google-services.json
+        run: |
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
+          elif [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json
+          elif [ -f android/app/google-services.json ]; then
+            echo "Using repository google-services.json"
+          else
+            echo "Missing GOOGLE_SERVICES_JSON or GOOGLE_SERVICES_JSON_B64 secret"
+            exit 1
+          fi
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: latest
-          name: Latest Release
-          draft: false
-          prerelease: false
-          files: build/app/outputs/flutter-apk/SwiftWrite.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: swiftwrite-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
