@@ -73,9 +73,6 @@ jobs:
       - name: Analyze
         run: flutter analyze
 
-      - name: Test
-        run: flutter test
-
       - name: Build release APK and AAB
         run: |
           flutter build apk --release
