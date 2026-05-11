@@ -1,5 +1,5 @@
 import 'package:writer/utils/helpers/file_type_analyzer.dart';
-import 'package:writer/utils/constants/file_types.dart';
+import 'package:writer/core/constants/file_types.dart';
 
 /// Helper class for file name and extension operations
 class FileHelper {
@@ -58,8 +58,6 @@ class FileHelper {
 
     if (extension == null || fileType == FileType.unsupported) {
       return 'txt';
-    } else if (fileType == FileType.todo) {
-      return 'todo';
     } else {
       return extension;
     }

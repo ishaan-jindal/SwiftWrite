@@ -12,7 +12,7 @@ import 'package:writer/data/services/auth_service.dart';
 import 'package:writer/utils/helpers/file_type_analyzer.dart';
 import 'package:writer/utils/helpers/file_helper.dart';
 
-import 'package:writer/utils/constants/file_types.dart';
+import 'package:writer/core/constants/file_types.dart';
 
 class WriterController extends GetxController {
   final NoteController noteController = Get.find<NoteController>();
@@ -27,7 +27,6 @@ class WriterController extends GetxController {
 
   Note? existingNote;
   final isPreview = true.obs;
-  final isTodoSourceView = false.obs;
   final tags = <String>[].obs;
   final type = FileType.plainText.obs;
   final isLoading = false.obs;
@@ -54,10 +53,6 @@ class WriterController extends GetxController {
     contentController.dispose();
     tagController.dispose();
     super.onClose();
-  }
-
-  void toggleTodoSourceView() {
-    isTodoSourceView.toggle();
   }
 
   void _updateFileType() {
@@ -143,7 +138,7 @@ class WriterController extends GetxController {
     final fileName = FileHelper.prepareFileName(rawTitle, extension);
 
     try {
-      final result = await FilePicker.platform.saveFile(
+      final result = await FilePicker.saveFile(
         dialogTitle: 'Save your note',
         fileName: fileName,
         bytes: Uint8List.fromList(content.codeUnits),

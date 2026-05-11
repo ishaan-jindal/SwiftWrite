@@ -1,4 +1,4 @@
-enum FileType { markdown, programmingLanguage, plainText, todo, unsupported }
+enum FileType { markdown, programmingLanguage, plainText, unsupported }
 
 const Map<String, int> languageIdMap = {
   'cpp': 52,
@@ -53,12 +53,9 @@ class FileTypes {
     'csv',
   ];
 
-  static const List<String> todo = ['todo'];
-
   static final List<String> supportedExtensions = [
     ...markdown,
     ...plainText,
     ...programmingLanguage,
-    ...todo,
   ];
 }

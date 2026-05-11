@@ -147,7 +147,10 @@ class NoteController extends GetxController {
       if (localKey != null) {
         final localNote = localByKey[localKey]!;
         matchedLocalKeys.add(localKey);
-        await cloudSync.setMapping(localKey: localKey, cloudId: cloudRecord.cloudId);
+        await cloudSync.setMapping(
+          localKey: localKey,
+          cloudId: cloudRecord.cloudId,
+        );
 
         if (_isCloudNewer(localNote: localNote, cloudNote: cloudRecord.note)) {
           final merged = _copyNoteFrom(cloudRecord.note, target: localNote);
@@ -157,8 +160,13 @@ class NoteController extends GetxController {
           await cloudSync.upsertNote(localKey: localKey, note: localNote);
         }
       } else {
-        final addedKey = await _databaseService.addNote(_copyDetached(cloudRecord.note));
-        await cloudSync.setMapping(localKey: addedKey, cloudId: cloudRecord.cloudId);
+        final addedKey = await _databaseService.addNote(
+          _copyDetached(cloudRecord.note),
+        );
+        await cloudSync.setMapping(
+          localKey: addedKey,
+          cloudId: cloudRecord.cloudId,
+        );
       }
     }
 

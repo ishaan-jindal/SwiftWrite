@@ -72,34 +72,36 @@ class CloudSyncService extends GetxService {
         .collection('notes')
         .get();
 
-    return query.docs.map((doc) {
-      final data = doc.data();
+    return query.docs
+        .map((doc) {
+          final data = doc.data();
 
-      DateTime readDate(dynamic value, DateTime fallback) {
-        if (value is Timestamp) {
-          return value.toDate();
-        }
-        if (value is DateTime) {
-          return value;
-        }
-        return fallback;
-      }
+          DateTime readDate(dynamic value, DateTime fallback) {
+            if (value is Timestamp) {
+              return value.toDate();
+            }
+            if (value is DateTime) {
+              return value;
+            }
+            return fallback;
+          }
 
-      final createdAt = readDate(data['createdAt'], DateTime.now());
-      final updatedAt = readDate(data['updatedAt'], createdAt);
+          final createdAt = readDate(data['createdAt'], DateTime.now());
+          final updatedAt = readDate(data['updatedAt'], createdAt);
 
-      final cloudNote = Note(
-        title: (data['title'] as String?) ?? 'Untitled',
-        content: (data['content'] as String?) ?? '',
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        tags: ((data['tags'] as List?) ?? const []).cast<String>(),
-        order: data['order'] as int?,
-        fileExtension: data['fileExtension'] as String?,
-      );
+          final cloudNote = Note(
+            title: (data['title'] as String?) ?? 'Untitled',
+            content: (data['content'] as String?) ?? '',
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            tags: ((data['tags'] as List?) ?? const []).cast<String>(),
+            order: data['order'] as int?,
+            fileExtension: data['fileExtension'] as String?,
+          );
 
-      return CloudNoteRecord(cloudId: doc.id, note: cloudNote);
-    }).toList(growable: false);
+          return CloudNoteRecord(cloudId: doc.id, note: cloudNote);
+        })
+        .toList(growable: false);
   }
 
   String? getCloudIdForLocalKey(dynamic localKey) {

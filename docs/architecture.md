@@ -36,7 +36,6 @@ Design consequence: cloud services are soft-optional and do not block local app 
 ### Controller layer
 - `NoteController`: list state, search/filter/reorder, cloud merge orchestration.
 - `WriterController`: note editing lifecycle, tags, save/share/export, code execution trigger.
-- `TodoController`: markdown <-> checklist projection for `.todo` editing.
 
 ### Service layer
 - `DatabaseService`: Hive CRUD over notes.
@@ -48,7 +47,6 @@ Design consequence: cloud services are soft-optional and do not block local app 
 
 ### Model layer
 - `Note` Hive model.
-- `TodoListItem` polymorphic in-memory model (`ChecklistItem`, `MarkdownItem`).
 
 ## 4) Route and DI behavior
 
@@ -71,10 +69,6 @@ This avoids hard failures in local-only mode while enabling features progressive
 - User pull-to-refresh or successful auth -> `NoteController.syncWithCloudMergeLatestWins()`.
 - Merge strategy chooses newer `updatedAt` between local and cloud when records match.
 
-### Todo path
-- Todo UI manipulates `TodoController.items`.
-- `TodoController` regenerates markdown and calls back into writer content.
-- Writer persists content as a standard note body.
 
 ## 6) Feature gating strategy
 

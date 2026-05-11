@@ -25,12 +25,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final isSignedIn = _authService?.isSignedIn == true;
-    final message =
-        isSignedIn
-            ? 'Notes synced with cloud database.'
-            : 'Local notes refreshed. Sign in to sync with cloud.';
+    final message = isSignedIn
+        ? 'Notes synced with cloud database.'
+        : 'Local notes refreshed. Sign in to sync with cloud.';
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -120,14 +121,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       onReorder: (oldIndex, newIndex) {
                         _noteController.reorderNotes(oldIndex, newIndex);
                       },
-                      proxyDecorator: (Widget child, int index, Animation<double> animation) {
-                        return Material(
-                          color: Theme.of(context).cardColor,
-                          elevation: 6.0,
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: child,
-                        );
-                      },
+                      proxyDecorator:
+                          (
+                            Widget child,
+                            int index,
+                            Animation<double> animation,
+                          ) {
+                            return Material(
+                              color: Theme.of(context).cardColor,
+                              elevation: 6.0,
+                              borderRadius: BorderRadius.circular(12.0),
+                              child: child,
+                            );
+                          },
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final note = filtered[index];
@@ -173,7 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: NoteTile(
                             note: note,
                             index: index,
-                            onTap: () => Get.toNamed('/writer', arguments: note),
+                            onTap: () =>
+                                Get.toNamed('/writer', arguments: note),
                             onLongPress: () =>
                                 AppHelpers.showNoteOptions(context, note),
                           ),

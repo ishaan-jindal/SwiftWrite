@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:writer/utils/themes/theme.dart';
+import 'package:writer/core/theme/app_theme.dart';
 
 class ThemeService {
   final _box = Hive.box('settings');

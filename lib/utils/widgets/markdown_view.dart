@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:writer/utils/themes/markdown_style.dart';
+import 'package:writer/core/theme/markdown_style.dart';
 
 class MarkdownView extends StatelessWidget {
   final String data;

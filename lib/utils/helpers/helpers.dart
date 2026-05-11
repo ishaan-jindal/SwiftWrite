@@ -48,7 +48,7 @@ class AppHelpers {
 
   static void openFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.any);
+      final result = await FilePicker.pickFiles(type: FileType.any);
 
       if (result != null) {
         final file = File(result.files.single.path!);
@@ -136,7 +136,7 @@ class AppHelpers {
   static Future<void> saveNoteToFile(BuildContext context, Note note) async {
     final fileName = FileHelper.prepareFileName(note.title, note.fileExtension);
     try {
-      final result = await FilePicker.platform.saveFile(
+      final result = await FilePicker.saveFile(
         dialogTitle: 'Save your note',
         fileName: fileName,
         bytes: Uint8List.fromList(note.content.codeUnits),

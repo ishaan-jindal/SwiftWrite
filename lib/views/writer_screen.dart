@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:writer/controllers/writer_controller.dart';
-import 'package:writer/utils/constants/file_types.dart';
+import 'package:writer/core/constants/file_types.dart';
 import 'package:writer/utils/widgets/markdown_view.dart';
 import 'package:writer/utils/widgets/content_editor.dart';
 import 'package:writer/utils/widgets/tag_editor.dart';
-import 'package:writer/views/todo_screen.dart';
 
 class WriterScreen extends GetView<WriterController> {
   const WriterScreen({super.key});
@@ -111,39 +110,17 @@ class WriterScreen extends GetView<WriterController> {
                   );
                 }
 
-                if (controller.type.value == FileType.todo) {
-                  return IconButton(
-                    icon: Icon(
-                      controller.isTodoSourceView.value
-                          ? Icons.list_alt
-                          : Icons.source,
-                    ),
-                    onPressed: controller.toggleTodoSourceView,
-                  );
-                }
-
                 return const SizedBox.shrink();
               }),
-              Obx(() {
-                if (controller.type.value != FileType.todo) {
-                  return IconButton(
-                    icon: const Icon(Icons.save),
-                    onPressed: () => controller.saveNoteToFile(context),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-              Obx(() {
-                if (controller.type.value != FileType.todo) {
-                  return IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: controller.shareNote,
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
+              IconButton(
+                icon: const Icon(Icons.save),
+                onPressed: () => controller.saveNoteToFile(context),
+              ),
+
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: controller.shareNote,
+              ),
             ],
           ),
           body: Padding(
@@ -152,21 +129,9 @@ class WriterScreen extends GetView<WriterController> {
               final showPreview =
                   controller.isPreview.value &&
                   controller.type.value == FileType.markdown;
-              final isTodo = controller.type.value == FileType.todo;
 
               if (showPreview) {
                 return MarkdownView(data: controller.contentController.text);
-              } else if (isTodo) {
-                if (controller.isTodoSourceView.value) {
-                  return _buildEditorWithTags(context);
-                } else {
-                  return TodoScreen(
-                    data: controller.contentController.text,
-                    onChanged: (newData) {
-                      controller.contentController.text = newData;
-                    },
-                  );
-                }
               } else {
                 return _buildEditorWithTags(context);
               }
