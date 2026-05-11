@@ -16,10 +16,6 @@ SwiftWrite determines editing mode from the note title extension.
 - **Markdown (`.md`, `.markdown`)**
   - Supports live Markdown preview.
   - Toggle preview with the eye icon.
-- **Todo (`.todo`)**
-  - Supports dual mode:
-    - structured checklist UI
-    - source Markdown editor view
 - **Programming files (`.py`, `.c`, `.js`, etc.)**
   - Treated as code-capable files.
   - Run button appears when signed in (for supported run languages currently `py` and `c`).
@@ -71,25 +67,12 @@ SwiftWrite determines editing mode from the note title extension.
 - Writer share icon writes a temporary file and shares it using OS share sheet.
 - Home note long-press menu also supports share.
 
-## 4) Todo hybrid experience
-
-For `.todo` notes:
-- Checklist rows are parsed from Markdown checkbox syntax (`- [ ]`, `- [x]`).
-- Non-checkbox lines are retained as Markdown items.
-- You can:
-  - reorder checklist/markdown rows
-  - toggle completion
-  - rename checklist items
-  - add/remove todo items
-- All operations regenerate Markdown and push updated content back to writer state.
-
-## 5) Markdown rendering
+## 4) Markdown rendering
 
 - Markdown preview uses a dedicated styled Markdown widget.
 - Code blocks and inline code use theme-aware style settings.
-- Horizontal rules and mixed Markdown content are supported in todo rendered mode.
 
-## 6) Authentication and account management
+## 5) Authentication and account management
 
 ### Sign in / registration
 - Email + password sign in and account creation via Firebase Auth.
@@ -100,7 +83,7 @@ For `.todo` notes:
 - Home app bar account icon changes depending on sign-in state.
 - Settings and Account screens both show cloud/account availability and sign-out option.
 
-## 7) Cloud-enabled features
+## 6) Cloud-enabled features
 
 When signed in and Firebase initializes successfully:
 - Cloud sync service is registered.
@@ -112,7 +95,7 @@ When cloud is unavailable:
 - App continues working in local-first mode.
 - Cloud-only actions show user-facing guidance.
 
-## 8) Code execution
+## 7) Code execution
 
 ### Access control
 - Requires signed-in cloud account.
@@ -128,13 +111,13 @@ When cloud is unavailable:
   3. poll for result until terminal state or timeout
 - Output screen displays original code plus formatted result (stdout/stderr per run).
 
-## 9) Theming
+## 8) Theming
 
 - Light and dark themes are supported.
 - Theme preference is persisted in local settings storage.
 - Optional seasonal "Fall mode" palette can be toggled via long-press on theme action.
 
-## 10) Navigation and route map
+## 9) Navigation and route map
 
 Registered routes:
 - `/` -> Home

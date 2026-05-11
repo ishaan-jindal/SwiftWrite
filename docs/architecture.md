@@ -3,7 +3,8 @@
 ## 1) Runtime model
 
 - **Framework**: Flutter
-- **State management / navigation / DI**: GetX
+- **State management**: BLoC
+- **Dependency Injection**: get_it + injectable
 - **Local persistence**: Hive
 - **Optional cloud**: Firebase Auth + Firestore
 - **Optional remote compute**: External code execution API
@@ -23,20 +24,85 @@ The app is intentionally local-first, with cloud enhancements activated only whe
 6. If Firebase is ready:
    - register `AuthService` (permanent)
    - register `CloudSyncService` (permanent)
-7. App starts with `GetMaterialApp` and route table.
+7. App starts with `MaterialApp` and route table.
 
 Design consequence: cloud services are soft-optional and do not block local app startup.
 
-## 3) Layering
+## 3) Feature-sliced directory structure
+
+The codebase is organized around features, with each feature owning its state, pages, and domain logic:
+
+```
+lib/
+├── features/
+│   ├── auth/
+│   │   ├── bloc/
+│   │   │   ├── auth_bloc.dart
+│   │   │   ├── auth_event.dart
+│   │   │   └── auth_state.dart
+│   │   └── pages/
+│   │       └── auth_screen.dart
+│   ├── notes/
+│   │   ├── bloc/
+│   │   │   ├── note_bloc.dart
+│   │   │   ├── note_event.dart
+│   │   │   └── note_state.dart
+│   │   ├── repository/
+│   │   │   └── note_repository.dart
+│   │   └── pages/
+│   │       ├── home_screen.dart
+│   │       └── writer_screen.dart
+│   ├── settings/
+│   │   ├── bloc/
+│   │   │   ├── settings_bloc.dart
+│   │   │   ├── settings_event.dart
+│   │   │   └── settings_state.dart
+│   │   └── pages/
+│   │       └── settings_screen.dart
+│   └── code_execution/
+│       ├── bloc/
+│       │   ├── code_execution_bloc.dart
+│       │   ├── code_execution_event.dart
+│       │   └── code_execution_state.dart
+│       └── pages/
+│           └── code_output_view.dart
+├── core/
+│   └── services/
+│       ├── navigation_service.dart
+│       ├── auth_service.dart
+│       ├── cloud_sync_service.dart
+│       ├── database_service.dart
+│       ├── theme_service.dart
+│       ├── firebase_service.dart
+│       └── code_execution_service.dart
+├── injection/
+│   ├── dependency_injection.dart
+│   └── dependency_injection.config.dart (generated)
+├── utils/
+│   ├── helpers/
+│   │   └── helpers.dart
+│   └── widgets/
+├── app/
+│   ├── app.dart
+│   └── routes.dart
+└── main.dart
+```
+
+**Feature ownership**: Each feature (auth, notes, settings, code_execution) owns its Bloc (state container), events, state definitions, and UI pages. Cross-feature communication happens via Bloc event dispatching (e.g., `NoteSyncRequested` from `AuthBloc` after successful sign-in).
+
+**Service consolidation**: All shared services live in `core/services/`, registered as lazy singletons via `get_it` at app startup. Services are never directly instantiated in the UI layer; instead, Blocs depend on them and expose their functionality through events/state.
+
+## 4) Layering
 
 ### UI layer
 - Screens in `lib/views/*`.
 - Reusable UI widgets in `lib/utils/widgets/*`.
 
-### Controller layer
-- `NoteController`: list state, search/filter/reorder, cloud merge orchestration.
-- `WriterController`: note editing lifecycle, tags, save/share/export, code execution trigger.
-- `TodoController`: markdown <-> checklist projection for `.todo` editing.
+### State management layer (Blocs)
+- `NoteBloc`: manages note list state, search/filter/reorder, cloud merge orchestration via events (`NoteLoadRequested`, `NoteSearchQueryChanged`, `NoteTagSelected`, `NoteSaveRequested`, `NoteDeleteRequested`, `NoteReorderRequested`, `NoteSyncRequested`).
+- `AuthBloc`: handles auth lifecycle, sign in/register/password reset, triggers note sync on successful auth.
+- `SettingsBloc`: owns theme preferences (dark mode, seasonal palette) and persists to Hive via `ThemeService`.
+- `CodeExecutionBloc`: manages code execution state transitions (`CodeExecutionRequested`, `CodeExecutionReset`) and provides result/error feedback.
 
 ### Service layer
 - `DatabaseService`: Hive CRUD over notes.
@@ -48,43 +114,46 @@ Design consequence: cloud services are soft-optional and do not block local app 
 
 ### Model layer
 - `Note` Hive model.
-- `TodoListItem` polymorphic in-memory model (`ChecklistItem`, `MarkdownItem`).
 
-## 4) Route and DI behavior
+## 5) Route and DI behavior
 
-GetX routes define lazy-ish dependency registration:
-- Home route ensures `NoteController` exists.
-- Writer route ensures both `NoteController` and `WriterController`.
-- Auth/settings rely on shared permanent auth/cloud services when available.
+Dependency injection via `get_it` with `injectable` bootstrap (`lib/injection/dependency_injection.dart`):
+- **Lazy singletons** registered for all services: `DatabaseService`, `ThemeService`, `NoteRepository`.
+- **Factories** registered for all Blocs: `NoteBloc`, `AuthBloc`, `SettingsBloc`, `CodeExecutionBloc`.
+- Firebase-dependent services (`AuthService`, `CloudSyncService`) registered at startup only if Firebase initialization succeeds.
+- All Blocs provided to the widget tree via `MultiBlocProvider` at app startup in `main.dart`.
+- Routes defined in `lib/app/routes.dart` using standard `Navigator` and `onGenerateRoute`.
 
-This avoids hard failures in local-only mode while enabling features progressively.
+This approach avoids hard failures in local-only mode while enabling cloud features progressively when auth is available.
 
-## 5) Data flow patterns
+## 6) Data flow patterns
 
 ### Note write path
-- UI action -> `WriterController.saveNote()` -> `NoteController.add/update` -> `DatabaseService` -> optional `CloudSyncService.upsertNote`.
+- UI action -> dispatch `NoteSaveRequested` event to `NoteBloc` -> `NoteBloc` calls `NoteRepository.addNote/updateNote` -> `DatabaseService` stores in Hive -> optional `CloudSyncService.upsertNote` to Firestore.
 
 ### Note delete path
-- UI swipe or action -> `NoteController.deleteNote` -> local delete -> optional cloud delete.
+- UI swipe/action -> dispatch `NoteDeleteRequested` event to `NoteBloc` -> `NoteBloc` calls `NoteRepository.deleteNote` -> local delete via `DatabaseService` -> optional cloud delete via `CloudSyncService`.
 
 ### Sync path
-- User pull-to-refresh or successful auth -> `NoteController.syncWithCloudMergeLatestWins()`.
+- User pull-to-refresh or successful auth sign-in -> dispatch `NoteSyncRequested` event to `NoteBloc` -> `NoteBloc` calls `NoteRepository.syncWithCloudMergeLatestWins()`.
 - Merge strategy chooses newer `updatedAt` between local and cloud when records match.
 
-### Todo path
-- Todo UI manipulates `TodoController.items`.
-- `TodoController` regenerates markdown and calls back into writer content.
-- Writer persists content as a standard note body.
+### Code execution path
+- UI "Run" button -> dispatch `CodeExecutionRequested` event to `CodeExecutionBloc` with code/language -> `CodeExecutionBloc` calls `CodeExecutionService.executeCode()` -> state transitions to success/failure -> `BlocListener` navigates to output or shows error.
 
-## 6) Feature gating strategy
+
+## 7) Feature gating strategy
 
 The app uses capability gating instead of hard dependencies:
-- Missing Firebase env -> auth/cloud features disabled gracefully.
-- Signed out user -> cloud sync and code execution not available.
-- Unsupported code extension -> execution blocked with user feedback.
+- Missing Firebase env -> `AuthService`/`CloudSyncService` not registered; `AuthBloc` gracefully handles uninitialized state.
+- Signed out user -> cloud sync and code execution not available; UI disables buttons and shows informational snackbars.
+- Unsupported code extension -> `CodeExecutionBloc` emits failure state with user-friendly error message.
+- All feature checks happen in Bloc event handlers or UI widget conditions, allowing graceful degradation.
 
-## 7) Error handling approach
+## 8) Error handling approach
 
-- User-facing operations mostly use SnackBars for recoverable UX feedback.
-- Service-level operations throw exceptions where appropriate (e.g., code execution API failures).
-- Some utilities currently rethrow generic exceptions; this is acceptable for internal tooling but could be refined for richer diagnostics.
+- User-facing errors flow through Bloc state (e.g., `CodeExecutionStatus.failure` with `errorMessage`).
+- Bloc listeners and UI builders react to error states and show SnackBars for recoverable feedback.
+- Service-level operations throw exceptions where appropriate (e.g., code execution API failures, Firebase auth errors).
+- Blocs catch exceptions, extract user-friendly messages (e.g., `AuthService.explainAuthError()`), and emit error states.
+- UI layer never directly calls services; all service interactions flow through Bloc events and state.

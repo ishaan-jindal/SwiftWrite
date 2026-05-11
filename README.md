@@ -1,6 +1,6 @@
 # SwiftWrite
 
-SwiftWrite is a local-first, cross-platform Flutter writing app with Markdown support, hybrid todo editing, optional cloud sync, and optional code execution.
+SwiftWrite is a local-first, cross-platform Flutter writing app with Markdown support, optional cloud sync, and optional code execution.
 
 ## Documentation
 
@@ -17,7 +17,6 @@ All project documentation now lives in the root `docs/` folder:
 - Local-first note storage with Hive
 - Search, tags, reorder, swipe-to-delete, and undo
 - Markdown editor + preview
-- `.todo` hybrid checklist/markdown editor
 - Import, export/save, and share flows
 - Optional Firebase authentication and Firestore sync
 - Optional authenticated code execution for supported languages
