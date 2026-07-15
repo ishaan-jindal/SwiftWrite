@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onRefresh: _pullToSync,
                       child: ReorderableListView.builder(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        onReorder: (oldIndex, newIndex) {
+                        onReorderItem: (int oldIndex, int newIndex) {
                           context.read<NoteBloc>().add(
                             NoteReorderRequested(oldIndex, newIndex),
                           );
