@@ -1,52 +1,127 @@
 # Contributing to SwiftWrite
 
-First off, thank you for considering contributing to SwiftWrite! It's great to have you here. As a solo developer, I appreciate any help I can get. This document will provide a brief overview of the project and guide you on how to contribute.
+Thank you for your interest in contributing to SwiftWrite!
 
-## Project Overview
+## Table of Contents
 
-SwiftWrite is a simple, fast, and elegant note-taking application built with Flutter. The goal is to provide a clean and distraction-free writing experience.
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [Development Setup](#development-setup)
+- [Project Structure](#project-structure)
+- [Making Changes](#making-changes)
+- [Style Guidelines](#style-guidelines)
+- [Testing](#testing)
+- [Pull Request Process](#pull-request-process)
+- [Questions?](#questions)
 
-### Tech Stack
+## Code of Conduct
 
-- **Framework:** [Flutter](https://flutter.dev/)
-- **State Management:** [GetX](https://pub.dev/packages/get)
-- **Local Storage:** [Hive](https://pub.dev/packages/hive)
-- **UI:** Material Design with a custom theme.
-
-### Project Structure
-
-The project follows a feature-driven architecture. Here's a quick rundown of the key directories under `lib/`:
-
--   `api/`: Contains services for interacting with external APIs.
--   `controllers/`: Holds the GetX controllers that manage the application's state and business logic.
--   `data/`: Includes data models (`models/`) and services for data persistence (`services/`).
--   `utils/`: A place for shared constants, helper functions, themes, and custom widgets.
--   `views/`: Contains the UI screens of the application.
+This project is governed by the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). By participating, you are expected to uphold this code.
 
 ## Getting Started
 
-1.  **Fork & Clone:** Fork the repository and clone it to your local machine.
-2.  **Install Dependencies:** Run `flutter pub get` in the root directory.
-3.  **Run Code Generation:** The project uses Hive, which requires code generation. Run the following command to generate the necessary files:
-    ```bash
-    flutter pub run build_runner build --delete-conflicting-outputs
-    ```
-4.  **Run the App:** Use `flutter run` to start the application on your preferred device or emulator.
+1. **Open an Issue** — Before submitting a Pull Request, please open a corresponding issue to discuss your proposed changes.
+2. **Fork the repository** on GitHub.
+3. **Clone your fork** to your local machine.
+4. **Create a new branch** — Use a descriptive name like `feat/word-count` or `fix/markdown-preview`.
 
-## How to Contribute
+## Development Setup
 
-Since this is a small project, the contribution process is straightforward.
+### Prerequisites
 
-1.  **Open an Issue:** Before starting any work, please open an issue to discuss the feature, bug, or improvement you have in mind. This helps to ensure that your work aligns with the project's goals.
-2.  **Create a Branch:** Create a new branch from `main` for your changes. A good branch name would be `feat/your-feature-name` or `fix/your-bug-fix`.
-3.  **Write Code:** Make your changes, following the existing code style and conventions.
-4.  **Submit a Pull Request:** Once you're ready, submit a pull request to the `main` branch. Please provide a clear description of the changes you've made.
+- **Flutter** (stable channel) — [Install](https://docs.flutter.dev/get-started/install)
+- **Dart** (bundled with Flutter)
+- (Optional) A Firebase project for cloud sync features
 
-## Coding Style & Conventions
+### Setup
 
--   **Linting:** The project uses `flutter_lints`. Please ensure your code adheres to these rules.
--   **File Naming:** Use `snake_case` for file names (e.g., `writer_screen.dart`).
--   **Structure:** Please follow the existing directory structure. For example, new UI screens go in `views/`, and their corresponding state management logic goes in `controllers/`.
--   **Commit Messages:** Write clear and concise commit messages that explain the "why" behind your changes.
+```bash
+# Get dependencies
+flutter pub get
 
-Thank you again for your interest in contributing!
+# Run code generation (if you changed Hive models)
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# Copy and configure environment
+cp example.env .env
+# Edit .env with your API keys if needed
+
+# Run the app
+flutter run
+```
+
+## Project Structure
+
+```
+lib/
+  app/              — App entry point, routes, theme
+  core/
+    theme/          — Light/dark theme, Markdown styles
+    services/       — Shared services (auth, Firebase)
+    helpers/        — File helpers, type analysis
+    constants/      — File type constants
+    widgets/        — Shared widgets (tag editor, etc.)
+  features/
+    notes/          — Note model, BLoC, repository, writer UI
+    code_execution/ — Run Python/C via external API
+    auth/           — Firebase authentication
+    settings/       — Theme, identity settings
+  injection/        — Dependency injection (GetIt + Injectable)
+```
+
+State management uses **BLoC** (`flutter_bloc`). Local storage uses **Hive**. Cloud sync (optional) uses **Firebase Auth + Firestore**.
+
+## Making Changes
+
+### What to Work On
+
+Check [open issues](https://github.com/ishaan-jindal/SwiftWrite/issues) for `good first issue` or `help wanted` labels. Good places to start:
+- Add word count and reading time
+- Add PDF export
+- Add a Markdown formatting toolbar
+- Add unit tests for BLoCs
+
+### Commit Messages
+
+Write clear, concise commit messages:
+
+```
+feat: add word count and reading time to writer
+fix: handle empty note title gracefully
+refactor: extract markdown preview into reusable widget
+```
+
+## Style Guidelines
+
+- Run `flutter analyze` and fix all warnings before committing.
+- Follow the [Flutter style guide](https://docs.flutter.dev/style-guide).
+- Use `snake_case` for file and directory names.
+- Use `lowerCamelCase` for variables and methods.
+- Use `UpperCamelCase` for types and classes.
+- Prefer `const` constructors where possible.
+
+## Testing
+
+```bash
+# Run all tests
+flutter test
+
+# Run with coverage
+flutter test --coverage
+genhtml coverage/lcov.info -o coverage/html
+```
+
+We welcome tests for BLoCs, repositories, and utility functions.
+
+## Pull Request Process
+
+1. Ensure your code passes `flutter analyze` with no warnings.
+2. Run `flutter test` and ensure all tests pass. Add tests for new functionality.
+3. If you changed Hive models, run code generation and commit the generated files.
+4. Reference the issue number in your PR description (e.g., `Fixes #123`).
+5. Provide a clear, concise description of your changes.
+6. Wait for feedback and address any requested changes.
+
+## Questions?
+
+Open a [discussion](https://github.com/ishaan-jindal/SwiftWrite/discussions) or ask in the issue you're working on.

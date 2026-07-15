@@ -50,12 +50,15 @@ jobs:
           elif [ -f android/app/google-services.json ]; then
             echo "Using repository google-services.json"
           else
-            echo "Missing GOOGLE_SERVICES_JSON or GOOGLE_SERVICES_JSON_B64 secret"
-            exit 1
+            echo "Warning: no google-services.json found. Firebase features will be unavailable."
+            touch android/app/google-services.json
           fi
 
       - name: Analyze
         run: flutter analyze
+
+      - name: Test
+        run: flutter test
 
       - name: Build debug APK
         run: flutter build apk --debug
